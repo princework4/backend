@@ -5,7 +5,7 @@
     "title": "REST API",
     "description": ""
   },
-  "host": "localhost:8000",
+  "host": "https://lms-backend-26qi.onrender.com",
   "basePath": "/api/v1",
   "schemes": [
     "http"

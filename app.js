@@ -5,8 +5,29 @@ const cors = require('cors');
 const ErrorMiddleWare = require('./middleware/error.js');
 const userRouter = require('./routes/user.route.js');
 const courseRouter = require('./routes/course.route.js');
-
+const orderRouter  = require('./routes/order.route.js');
+const NotificationRouter = require('./routes/notification.route.js');
+const AnalyticsRouter = require('./routes/analytics.route.js');
+const layoutRouter = require('./routes/layout.route.js');
 const app = express();
+const rateLimit = require('express-rate-limit');
+
+
+
+
+
+
+// Adding Rate Limiter
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max : 100,
+    message : "Too many requests. Please try again after 15 minutes",
+    headers : true
+});
+
+
+app.use(limiter)
+
 
 // Middleware to parse JSON payloads
 app.use(express.json({ limit: '50mb' }));
@@ -19,8 +40,7 @@ app.use(cors({
     origin: process.env.ORIGIN,
 }));
 
-app.use('/api/v1', userRouter);
-app.use('/api/v1/', courseRouter)
+app.use('/api/v1', userRouter, courseRouter, orderRouter, NotificationRouter, AnalyticsRouter, layoutRouter );
 app.use(ErrorMiddleWare);
 
 

@@ -18,7 +18,7 @@ const authenticateUser = CatchAsyncError(async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
         const user = await redisClient.get(decoded.id);
         if (!user) {
-            return next(new ErrorHandler('User not found', 404));
+            return next(new ErrorHandler('Please login again', 404));
         }
         req.user = JSON.parse(user);
         next();
@@ -33,7 +33,6 @@ const authenticateUser = CatchAsyncError(async (req, res, next) => {
 // Validate User Roles
 const authorizeRoles = (...roles) => {
     return CatchAsyncError(async (req, res, next) => {
-        console.log(req.user)
         if(!req.user || !roles.includes(req.user.role)){
             return next(new ErrorHandler('You do not have permission to perform this action', 403))
         }

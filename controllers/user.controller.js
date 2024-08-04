@@ -7,7 +7,11 @@ const CatchAsyncError = require('../middleware/catchAsyncError.js');
 const sendToken = require('../utils/jwt.js');
 const redis = require('../utils/redis.js');
 const { getUserByID } = require('../services/getuser.js');
-const cloudinary = require('cloudinary')
+const cloudinary = require('cloudinary');
+const cron = require('node-cron');
+const  OrderModel = require('../models/order.model')
+const moment = require("moment");
+const {getAllUsersService, updateUserRoleService} = require("../services/getuser");
 
 // Register User
 const registrationUser = CatchAsyncError(async (req, res, next) => {
@@ -333,4 +337,133 @@ const updateProfilePicture = CatchAsyncError(async (req, res, next) => {
 });
 
 
-module.exports = { registrationUser, activateUser, loginUser, logoutUser, refreshToken, getUserInfo, socialAuth, updateUserInfo, updatePassword , updateProfilePicture};
+
+
+// Update Subscription Details
+const purchaseSubscription = CatchAsyncError(async (req, res, next) => {
+    try{
+        const {plan, payment_info} = req.body;
+        const user = req.user;
+        if(!plan || !payment_info){
+            next(new ErrorHandler('Plan or Payment not found', 400));
+        } else {
+            const planStartDate = moment().toDate();
+            let planEndDate = planStartDate;
+            console.log(planEndDate);
+            switch (plan) {
+                case "monthly":
+                    planEndDate = moment().add(30, 'days').toDate();
+                    break;
+                case "quarterly" :
+                    planEndDate = moment().add(90, 'days').toDate();
+                    break;
+                case "half-yearly" :
+                    planEndDate = moment().add(180, 'days').toDate();
+                    break;
+                case "yearly" :
+                    planEndDate = moment().add(365, 'days').toDate();
+                    break;
+                default :
+                    return next(new ErrorHandler('Invalid plan type', 400));
+            }
+            console.log(planEndDate)
+            await userModel.updateOne(
+                {_id : user._id },
+                {$set : {"subscription.isActive": true, "subscription.startDate" : planStartDate, "subscription.endDate" : planEndDate, "subscription.plan" : plan}}
+            );
+            await OrderModel.create({
+                isSubscription: true,
+                userId : user._id,
+                payment_info : payment_info
+            })
+            res.status(201).json({
+                success : true,
+                message : "Subscription purchased successfully"
+            })
+        }
+    }catch(error){
+        next(new ErrorHandler(error.message, 500));
+    }
+})
+
+
+
+// Get All users -- For Admin Only
+const getAllUsers = CatchAsyncError(async (req, res, next) => {
+    try{
+        getAllUsersService(res,next)
+    }catch (e) {
+        next(new ErrorHandler(e.message, 500))
+    }
+})
+
+
+
+// Update User Role -- Admin Only
+const updateUserRole = CatchAsyncError(async (req, res, next) => {
+    try{
+        const {role, userId} = req.body;
+        await updateUserRoleService(userId, role, res, next)
+    }catch (e) {
+        next (new ErrorHandler(e.message, 500))
+    }
+});
+
+
+
+
+
+// Delete User -- Admin Only
+const deleteUser = CatchAsyncError(async (req, res, next) => {
+    try{
+        const {userId} = req.body
+
+        if(!userId){
+            next(new ErrorHandler('User not found', 401));
+        }
+        await  userModel.deleteOne({_id: userId})
+        await  redis.del(userId)
+
+        res.status(201).json({
+            success : true,
+            message : "User Deleted"
+        })
+    } catch (err){
+        next(new ErrorHandler(err.message, 500))
+    }
+})
+
+
+
+
+
+
+// Updating the user subscription if it has expired
+cron.schedule("0 0 0 * * *", async () => {
+    const today = moment().startOf('day').toDate();
+    await userModel.updateMany(
+        { "subscription.isActive": true, "subscription.endDate": { $lt: today } },
+        { $set: { "subscription.isActive": false } }
+    );
+    console.log("Subscription job run success")
+});
+
+
+
+
+module.exports = {
+    registrationUser,
+    activateUser,
+    loginUser,
+    logoutUser,
+    refreshToken,
+    getUserInfo,
+    socialAuth,
+    updateUserInfo,
+    updatePassword ,
+    updateProfilePicture,
+    purchaseSubscription,
+    getAllUsers,
+    updateUserRole,
+    deleteUser
+};

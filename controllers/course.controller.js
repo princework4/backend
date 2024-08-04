@@ -1,14 +1,13 @@
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const CatchAsyncError = require('../middleware/catchAsyncError');
 const ErrorHandler = require('../utils/errorHandler');
 const cloudinary = require('cloudinary');
-const createCourse = require('../services/course');
+const {createCourse, getAllCoursesService} = require('../services/course');
 const CourseModel = require('../models/course.model');
 const redis = require('../utils/redis.js');
 const mongoose = require("mongoose");
-const path = require("node:path");
 const sendEmail = require('../utils/sendMail.js');
+const NotificationModel = require('../models/notification.model');
+const {getAllUsersService} = require("../services/getuser");
 
 
 // Upload Course
@@ -40,7 +39,6 @@ const editCourse = CatchAsyncError(async (req, res, next) => {
     try {
         const data = req.body;
         const courseId = req.query.CourseId;
-        console.log(courseId)
 
         if (data.thumbnail) {
             // Ensure thumbnail is either a URL or file path
@@ -219,6 +217,14 @@ const addQuestion = CatchAsyncError(async (req, res, next) => {
         courseContent.questions = courseContent.questions || []; // Ensure questions array exists
         courseContent.questions.push(newQuestion);
 
+
+        // Creating a Notification for the Question
+        await  NotificationModel.create({
+            userId : req.user._id,
+            title : "New Question",
+            message : `You have a new question in ${courseContent?.title}!`,
+        })
+
         // Save the course with the new question
         await course.save();
 
@@ -239,7 +245,6 @@ const addQuestion = CatchAsyncError(async (req, res, next) => {
 const addQuestionReplies = CatchAsyncError(async (req, res, next) => {
     try {
         const { answer, courseId, contentId, questionId } = req.body;
-        console.log(courseId, contentId, questionId);
 
         // Validate ObjectIds
         if (!mongoose.Types.ObjectId.isValid(courseId) ||
@@ -279,8 +284,12 @@ const addQuestionReplies = CatchAsyncError(async (req, res, next) => {
         // Save the updated course document
         await course.save();
 
-        if(req.user._id == questionContent.user._id) {
-        // Send Notification to the Admin
+        if(req.user._id === questionContent.user._id) {
+            await  NotificationModel.create({
+                userId : req.user._id,
+                title : "New Question reply received",
+                message : `You have a new reply in ${courseContent?.title}!`,
+            })
         } else {
             const data = {
                 name : questionContent.user.name,
@@ -289,7 +298,7 @@ const addQuestionReplies = CatchAsyncError(async (req, res, next) => {
             }
 
             try{
-                await  sendEmail({
+                await sendEmail({
                     email: questionContent.user.email,
                     subject: "New Reply",
                     template: "questionReply.ejs",
@@ -376,4 +385,56 @@ const addCourseReview = CatchAsyncError(async (req, res, next) => {
     }
 });
 
-module.exports = { uploadCourse, editCourse, getSingleCourseDetails, getAllCoursesDetails, getCourseByUser, addQuestion, addQuestionReplies, addCourseReview }
+
+
+// Get All Courses -- Admin Only
+const getAllCourses = CatchAsyncError(async (req, res, next) => {
+    try{
+        getAllCoursesService(res,next)
+    }catch (e) {
+        next(new ErrorHandler((e.message, 500)))
+    }
+});
+
+
+
+
+
+
+
+// Delete Course -- Admin Only
+const deleteCourse = CatchAsyncError(async (req, res, next) => {
+    try{
+        const {courseId} = req.body
+
+        if(!courseId){
+            next(new ErrorHandler('Course not found', 401));
+        }
+        await CourseModel.deleteOne({_id: courseId})
+        await redis.del(courseId)
+
+        res.status(201).json({
+            success : true,
+            message : "Course Deleted"
+        })
+    } catch (err){
+        next(new ErrorHandler(err.message, 500))
+    }
+})
+
+
+
+
+
+module.exports = {
+    uploadCourse,
+    editCourse,
+    getSingleCourseDetails,
+    getAllCoursesDetails,
+    getCourseByUser,
+    addQuestion,
+    addQuestionReplies,
+    addCourseReview,
+    getAllCourses,
+    deleteCourse
+}

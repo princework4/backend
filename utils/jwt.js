@@ -5,13 +5,13 @@ const moment = require('moment')
 
 
 
-const sendToken = (user, statusCode, res) => {
+const sendToken = async(user, statusCode, res) => {
     const accessToken = user?.signInAccessToken();
     const refreshToken = user?.refreshAccessToken();
 
 
     // Setting up Session in redis
-    redis.set(user._id, JSON.stringify(user), 'EX', 86400); //
+    redis.set(user._id, JSON.stringify(user), 'EX', 604800); //
 
 
     // parse environment variables to integrate with fallback values
@@ -38,6 +38,7 @@ const sendToken = (user, statusCode, res) => {
 
     res.cookie("access_token", accessToken, accessTokenOptions)
     res.cookie("refresh_token", refreshToken, refreshTokenOptions)
+
 
     res.status(statusCode).json({
         success: true,

@@ -27,7 +27,6 @@ const sendEmail = async (options) => {
         const html = await ejs.renderFile(templatePath, data);
 
         // Define the email options
-        console.log("sending mail");
         const mailOptions = {
             from: process.env.SMTP_MAIL, // Replace with your sender email
             to: email,

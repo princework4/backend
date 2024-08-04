@@ -5,10 +5,10 @@
     "title": "REST API",
     "description": ""
   },
-  "host": "https://lms-backend-26qi.onrender.com",
+  "host": "lms-backend-26qi.onrender.com",
   "basePath": "/api/v1",
   "schemes": [
-    "http"
+    "https"
   ],
    "tags": [
     {

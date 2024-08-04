@@ -4,14 +4,16 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node server.js",
-    "start" : "node server.js",
-    "build": "echo \"No build steps necessary\""
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "build": "echo \"No build steps necessary\"",
+    "swagger": "node swagger.js"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "and": "^0.0.3",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.4.0",
     "cookie-parser": "^1.4.6",
@@ -27,6 +29,8 @@
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.14",
     "nodemon": "^3.1.4",
+    "swagger-autogen": "^2.23.7",
+    "swagger-ui-express": "^5.0.1",
     "ts-node-dev": "^2.0.0"
   },
   "devDependencies": {

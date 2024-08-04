@@ -11,7 +11,8 @@ const AnalyticsRouter = require('./routes/analytics.route.js');
 const layoutRouter = require('./routes/layout.route.js');
 const app = express();
 const rateLimit = require('express-rate-limit');
-
+const swaggerUi = require('swagger-ui-express')
+const swaggerFile = require('./swagger_output.json')
 
 
 
@@ -41,6 +42,7 @@ app.use(cors({
 }));
 
 app.use('/api/v1', userRouter, courseRouter, orderRouter, NotificationRouter, AnalyticsRouter, layoutRouter );
+app.use('/doc', swaggerUi.serve, swaggerUi.setup(swaggerFile))
 app.use(ErrorMiddleWare);
 
 

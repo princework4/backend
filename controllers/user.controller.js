@@ -19,7 +19,7 @@ const registrationUser = CatchAsyncError(async (req, res, next) => {
 
     const isEmailExist = await userModel.findOne({ email });
     if (isEmailExist) {
-        return next(new ErrorHandler("Email already exists", 400));
+        return next(new ErrorHandler("Email already exists", 409));
     }
 
     const user = {
@@ -65,7 +65,6 @@ const createActivationToken = (user) => {
 
 
 
-
 // Activate user
 const activateUser = CatchAsyncError(async (req, res, next) => {
     try {
@@ -88,12 +87,8 @@ const activateUser = CatchAsyncError(async (req, res, next) => {
             email,
             password
         });
-
-
-        res.status(201).json({
-            success: true,
-            message: 'User activated successfully',
-        });
+        
+        sendToken(user, 200, res);
     } catch (error) {
         console.error('Error during user activation:', error);
         return next(new ErrorHandler(error.message, 400));

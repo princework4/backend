@@ -16,12 +16,27 @@ const swaggerFile = require('./swagger_output.json')
 
 
 
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) {
+            return callback(null, true);
+        }
 
+        if (process.env.ORIGIN.includes(origin)) {
+            return callback(null, true);
+        } else {
+            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+            return callback(new Error(msg), false);
+        }
+    },
+    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+}));
 
 // Adding Rate Limiter
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max : 100,
+    windowMs: 5 * 60 * 1000, // 15 minutes
+    max : 200,
     message : "Too many requests. Please try again after 15 minutes",
     headers : true
 });
@@ -37,7 +52,6 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
-app.use(cors());
 
 app.use('/api/v1', userRouter, courseRouter, orderRouter, NotificationRouter, AnalyticsRouter, layoutRouter );
 app.use('/doc', swaggerUi.serve, swaggerUi.setup(swaggerFile))

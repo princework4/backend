@@ -89,7 +89,7 @@ const getSingleCourseDetails = CatchAsyncError(async (req, res, next) => {
         // Checking if redis has the cached course Data
         if (cachedCourse) {
             const parsedCourseData = JSON.parse(cachedCourse)
-            res.status(200).json({
+            res.status(201).json({
                 success: true,
                 parsedCourseData
             })
@@ -150,7 +150,7 @@ const getCourseByUser = CatchAsyncError(async (req, res, next) => {
         const isSubscribedUser = req.user.subscription?.isActive;
 
         // Checking if the course exists in the purchased courses
-        const courseExist = purchasedCoursesByUser.some((item) => item.courseId.toString() === courseId);
+        const courseExist = purchasedCoursesByUser.some((item) => item._id.toString() === courseId);
 
         if (courseExist) {
             let course = await CourseModel.findById(courseId).select('courseData');
@@ -188,10 +188,10 @@ const getCourseByUser = CatchAsyncError(async (req, res, next) => {
 // Add Questions to courseData
 const addQuestion = CatchAsyncError(async (req, res, next) => {
     try {
-        const { question, courseId, contentId } = req.body;
+        const { question, courseId } = req.body;
 
         // Validate courseId and contentId
-        if (!mongoose.Types.ObjectId.isValid(courseId) || !mongoose.Types.ObjectId.isValid(contentId)) {
+        if (!mongoose.Types.ObjectId.isValid(courseId)) {
             return next(new ErrorHandler('Invalid course or content ID', 400));
         }
 
@@ -200,29 +200,29 @@ const addQuestion = CatchAsyncError(async (req, res, next) => {
             return next(new ErrorHandler('Course not found', 404));
         }
 
-        // Find the specific course content
-        const courseContent = course.courseData.find(item => item._id.toString() === contentId);
-        if (!courseContent) {
-            return next(new ErrorHandler('Content not found', 404));
-        }
+        // // Find the specific course content
+        // const courseContent = course.courseData.find(item => item._id.toString() === contentId);
+        // if (!courseContent) {
+        //     return next(new ErrorHandler('Content not found', 404));
+        // }
 
         // Create new question
         const newQuestion = {
-            user: req.user,
+            user: req.user._id,
             question: question,
             questionReplies: []
         };
 
         // Add the new question to the course content
-        courseContent.questions = courseContent.questions || []; // Ensure questions array exists
-        courseContent.questions.push(newQuestion);
+        course.questions = course.questions || []; // Ensure questions array exists
+        course.questions.push(newQuestion);
 
 
         // Creating a Notification for the Question
         await  NotificationModel.create({
             userId : req.user._id,
             title : "New Question",
-            message : `You have a new question in ${courseContent?.title}!`,
+            message : `You have a new question in ${course?.title}!`,
         })
 
         // Save the course with the new question

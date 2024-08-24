@@ -20,19 +20,19 @@ const sendToken = async(user, statusCode, res) => {
 
     // Options for cookies
     const accessTokenOptions = {
-        httpOnly: true,
+        httpOnly: false,
         maxAge: accessTokenExpire * 60 * 1000,
         secure: process.env.NODE_ENV == "Production",
-        sameSite: 'strict',
-        expires: moment.utc().add(accessTokenExpire, 'minutes').format('YYYY-MM-DDTHH:mm:ss[Z]')
+        sameSite: 'Lax',
+        expires: moment().add(accessTokenExpire, 'minutes').format()
     };
 
     const refreshTokenOptions = {
-        httpOnly: true,
+        httpOnly: false,
         maxAge: refreshTokenExpire * 24 * 60 * 1000,
         secure: process.env.NODE_ENV == "Production",
-        sameSite: 'strict',
-        expires: moment.utc().add(refreshTokenExpire, 'minutes').format('YYYY-MM-DDTHH:mm:ss[Z]')
+        sameSite: 'Lax',    
+        expires: moment().add(refreshTokenExpire, 'minutes').format()
     };
 
 

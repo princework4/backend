@@ -24,7 +24,7 @@ const linkSchema = new mongoose.Schema({
 
 
 const commentSchema = new mongoose.Schema({
-    user: Object,
+    user: String,
     question: String,
     questionReplies: [Object]
 })
@@ -39,7 +39,6 @@ const courseDataSchema = new mongoose.Schema({
     VideoPlayer: String,
     links: [linkSchema],
     suggestion: String,
-    questions: [commentSchema]
 })
 
 
@@ -102,7 +101,8 @@ const courseSchema = new mongoose.Schema({
     purchased: {
         type: Number,
         default: 0
-    }
+    },
+    questions: [commentSchema]
 },{timestamps : true});
 
 

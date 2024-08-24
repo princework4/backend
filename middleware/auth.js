@@ -18,7 +18,7 @@ const authenticateUser = CatchAsyncError(async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
         const user = await redisClient.get(decoded.id);
         if (!user) {
-            return next(new ErrorHandler('Please login again', 404));
+            return next(new ErrorHandler('Please login again', 401));
         }
         req.user = JSON.parse(user);
         next();
@@ -47,7 +47,7 @@ const authorizeRoles = (...roles) => {
 const validateRefreshToken = CatchAsyncError(async(req, res, next) => {
     const refreshToken = req.cookies['refresh_token'];
     if(!refreshToken){
-        return next(new ErrorHandler('Refresh token not found', 401))
+        return next(new ErrorHandler('Refresh token not found', 400))
     }
     try {
         const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)

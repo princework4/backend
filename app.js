@@ -34,22 +34,22 @@ app.use(cors({
 }));
 
 // Adding Rate Limiter
-const limiter = rateLimit({
-    windowMs: 5 * 60 * 1000, // 15 minutes
-    max : 200,
-    message : "Too many requests. Please try again after 15 minutes",
-    headers : true
-});
+// const limiter = rateLimit({
+//     windowMs: 5 * 60 * 1000, // 15 minutes
+//     max : 200,
+//     message : "Too many requests. Please try again after 15 minutes",
+//     headers : true
+// });
 
 
-app.use(limiter)
+// app.use(limiter)
 
 
 // Middleware to parse JSON payloads
 app.use(express.json({ limit: '50mb' }));
 
 // Middleware to parse URL-encoded payloads
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit : '10mb' }));
 
 app.use(cookieParser());
 

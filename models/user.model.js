@@ -33,9 +33,23 @@ const userSchema = new mongoose.Schema({
         public_id: String,
         url: String
     },
+    phone : {
+        type : String,
+        minlength : [10, "Please enter a valid phone number"],
+        maxlength : [10, "Please enter a valid phone number"],
+    },
+    dob : {
+        type : Date,
+    },
+    address1 : {
+        type : String
+    },
+    address2 : {
+        type : String
+    },
     role: {
-        type: String,
-        default: "user"
+        type: Array,
+        default: ["user"]
     },
     isVerified: {
         type: Boolean,

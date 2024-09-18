@@ -2,6 +2,8 @@ const CatchAsyncError = require("../middleware/catchAsyncError");
 const redis = require("../utils/redis");
 const ErrorHandler = require("../utils/errorHandler");
 const UserModel = require("../models/user.model");
+const CourseModel = require("../models/course.model");
+const OrderModel = require("../models/order.model");
 
 const getUserByID = CatchAsyncError(async (id, res) => {
     const userJSON = await redis.get(id)
@@ -21,9 +23,17 @@ const getUserByID = CatchAsyncError(async (id, res) => {
 const getAllUsersService = CatchAsyncError(async (res, next) => {
     try{
         const users = await UserModel.find().sort({createdAt: -1})
+        const totalUsers = await UserModel.countDocuments();
+        const totalCourse = await CourseModel.countDocuments();
+        const totalOrder = await OrderModel.countDocuments();
+
+
         res.status(201).json({
             success: true,
-            users: users
+            users: users,
+            totalUsers: totalUsers,
+            totalCourse : totalCourse,
+            totalOrder : totalOrder
         })
     }catch(err){
         next(new ErrorHandler(err.message, 500));

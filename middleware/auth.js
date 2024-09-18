@@ -31,14 +31,18 @@ const authenticateUser = CatchAsyncError(async (req, res, next) => {
 
 
 // Validate User Roles
-const authorizeRoles = (...roles) => {
+const authorizeRoles = (...allowedRoles) => {
     return CatchAsyncError(async (req, res, next) => {
-        if(!req.user || !roles.includes(req.user.role)){
-            return next(new ErrorHandler('You do not have permission to perform this action', 403))
-        }
-        next();
-    })
-}
+      if (!req.user || !req.user.role || !Array.isArray(req.user.role)) {
+        return next(new ErrorHandler('Invalid user roles format', 403));
+      }  
+      const hasRole = req.user.role.some(role => allowedRoles.includes(role));
+      if (!hasRole) {
+        return next(new ErrorHandler('You do not have permission to perform this action', 403));
+      }
+      next();
+    });
+  };
 
 
 

@@ -14,17 +14,10 @@ const reviewSchema = new mongoose.Schema({
 
 
 
-const linkSchema = new mongoose.Schema({
-    title: String,
-    url: String,
-});
-
-
-
 
 
 const commentSchema = new mongoose.Schema({
-    user: String,
+    user: Object,
     question: String,
     questionReplies: [Object]
 })
@@ -37,7 +30,10 @@ const courseDataSchema = new mongoose.Schema({
     description: String,
     videoLength: Number,
     VideoPlayer: String,
-    links: [linkSchema],
+    links: {
+        title: String,
+        url: String,
+    },
     suggestion: String,
 })
 
@@ -62,11 +58,11 @@ const courseSchema = new mongoose.Schema({
     },
     thumbnail: {
         public_id: {
-            // required: true,
+            required: true,
             type: String
         },
         url: {
-            // required: true,
+            required: true,
             type: String
         }
     },
@@ -94,16 +90,43 @@ const courseSchema = new mongoose.Schema({
     ],
     reviews: [reviewSchema],
     courseData: [courseDataSchema],
-    ratings: {
-        type: Number,
-        default: 0
-    },
     purchased: {
         type: Number,
         default: 0
     },
-    questions: [commentSchema]
-},{timestamps : true});
+    questions: [commentSchema],
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    },
+    isApproved : {
+        type: Boolean,
+        default: false
+    }
+}, { timestamps: true });
+
+
+
+
+
+
+// Creating a virtual for calculating the average rating
+courseSchema.virtual('ratings').get(function () {
+    if (this.reviews.length === 0) {
+        return 0
+    } else {
+        const total = this.reviews.reduce((acc, item) => acc + item.rating, 0)
+        const average = total / this.reviews.length;
+        return Math.round(average * 2) / 2
+    }
+})
+
+
+// Convert the virtual field to JSON and Object outputs
+courseSchema.set('toObject', { virtuals: true });
+courseSchema.set('toJSON', { virtuals: true });
+
+
 
 
 const CourseModel = mongoose.model("Course", courseSchema);

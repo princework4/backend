@@ -25,13 +25,13 @@ userRouter.get('/logout', authenticateUser, logoutUser)
 userRouter.get('/refresh-token', validateRefreshToken, refreshToken)
 userRouter.get('/userinfo',authenticateUser, getUserInfo)
 userRouter.post('/socialAuth', socialAuth)
-userRouter.put('/updateuserinfo', authenticateUser, authorizeRoles("user"), updateUserInfo)
-userRouter.post('/updatepassword', authenticateUser, authorizeRoles("user"), updatePassword)
-userRouter.put('/updateuseravatar', authenticateUser, authorizeRoles("user"), updateProfilePicture)
+userRouter.put('/updateuserinfo', authenticateUser, updateUserInfo)
+userRouter.post('/updatepassword', authenticateUser,  updatePassword)
+userRouter.put('/updateuseravatar', authenticateUser,  updateProfilePicture)
 userRouter.post('/purchase-subscription', authenticateUser, authorizeRoles("user"), purchaseSubscription)
 userRouter.get('/get-all-users', authenticateUser, authorizeRoles("admin"), getAllUsers)
 userRouter.put('/update-user-role', authenticateUser, authorizeRoles("admin"), updateUserRole)
-userRouter.delete('/delete-user', authenticateUser, authorizeRoles("admin"), deleteUser)
+userRouter.put('/delete-user', authenticateUser, authorizeRoles("user", "admin"), deleteUser)
 
 
 

@@ -5,7 +5,7 @@ const moment = require('moment')
 
 
 
-const sendToken = async(user, statusCode, res) => {
+const sendToken = async (user, statusCode, res) => {
     const accessToken = user?.signInAccessToken();
     const refreshToken = user?.refreshAccessToken();
 
@@ -31,7 +31,7 @@ const sendToken = async(user, statusCode, res) => {
         httpOnly: false,
         maxAge: refreshTokenExpire * 24 * 60 * 1000,
         secure: process.env.NODE_ENV == "Production",
-        sameSite: 'Lax',    
+        sameSite: 'Lax',
         expires: moment().add(refreshTokenExpire, 'minutes').format()
     };
 
@@ -39,11 +39,14 @@ const sendToken = async(user, statusCode, res) => {
     res.cookie("access_token", accessToken, accessTokenOptions)
     res.cookie("refresh_token", refreshToken, refreshTokenOptions)
 
+    // Remove password from user object before sending response
+    const userResponse = user.toObject(); // Convert Mongoose document to plain JS object
+    delete userResponse.password; // Remove the password field
 
     res.status(statusCode).json({
         success: true,
         accessToken,
-        user,
+        user : userResponse,
     })
 }
 

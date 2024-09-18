@@ -1,25 +1,33 @@
 const CatchAsyncError = require("../middleware/catchAsyncError");
 const CourseModel = require("../models/course.model");
+const NotificationModel = require("../models/notification.model");
 const UserModel = require("../models/user.model");
 const ErrorHandler = require("../utils/errorHandler");
+const sendEmail = require("../utils/sendMail");
 
 
-// Create Course 
-const createCourse = CatchAsyncError(async (data, res) => {
-    const course = await CourseModel.create(data);
-    res.status(201).json({ message: "Course created successfully", course });
-})
 
 
-const getAllCoursesService = CatchAsyncError(async (res, next) => {
-    try{
-        const courses = await CourseModel.find()
-        res.status(201).json({
-            success: true,
-            courses: courses
-        })
-    }catch(err){
+
+const getAllCoursesService = CatchAsyncError(async (req, res, next) => {
+    try {
+        const user = req.user
+        const isAdmin = user.role.some((item) => item === 'admin')
+        if (isAdmin) {
+            const courses = await CourseModel.find()
+            res.status(201).json({
+                success: true,
+                courses: courses
+            })
+        } else {
+            const courses = await CourseModel.find({ createdBy: user })
+            res.status(201).json({
+                success: true,
+                courses: courses
+            })
+        }
+    } catch (err) {
         next(new ErrorHandler(err.message, 500));
     }
 })
-module.exports = {createCourse, getAllCoursesService}
+module.exports = { getAllCoursesService }

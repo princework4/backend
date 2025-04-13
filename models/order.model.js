@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
 
 const PaymentInfoSchema = new mongoose.Schema({
+    orderId: { type: String, required: true },
     transactionId: { type: String, required: true },
     paymentMethod: { type: String, required: true },
     amount: { type: Number, required: true },
     currency: { type: String, required: true },
+    signature: { type: String, required: true },
     status: { type: String, required: true },
     paymentDate: { type: Date, required: true }
 }, { _id: false }); // _id: false to avoid creating an additional _id field in the embedded schema

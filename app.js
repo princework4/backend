@@ -12,7 +12,8 @@ const layoutRouter = require('./routes/layout.route.js');
 const app = express();
 const rateLimit = require('express-rate-limit');
 const swaggerUi = require('swagger-ui-express')
-const swaggerFile = require('./swagger_output.json')
+const swaggerFile = require('./swagger_output.json');
+const CategoryRouter = require('./routes/category.route.js');
 
 
 
@@ -34,15 +35,15 @@ app.use(cors({
 }));
 
 // Adding Rate Limiter
-// const limiter = rateLimit({
-//     windowMs: 5 * 60 * 1000, // 15 minutes
-//     max : 200,
-//     message : "Too many requests. Please try again after 15 minutes",
-//     headers : true
-// });
+const limiter = rateLimit({
+    windowMs: 5 * 60 * 1000, // 15 minutes
+    max : 200,
+    message : "Too many requests. Please try again after 15 minutes",
+    headers : true
+});
 
 
-// app.use(limiter)
+app.use(limiter)
 
 
 // Middleware to parse JSON payloads
@@ -53,7 +54,7 @@ app.use(express.urlencoded({ extended: true, limit : '10mb' }));
 
 app.use(cookieParser());
 
-app.use('/api/v1', userRouter, courseRouter, orderRouter, NotificationRouter, AnalyticsRouter, layoutRouter );
+app.use('/api/v1', userRouter, courseRouter, orderRouter, NotificationRouter, AnalyticsRouter, layoutRouter, CategoryRouter );
 app.use('/doc', swaggerUi.serve, swaggerUi.setup(swaggerFile))
 app.use(ErrorMiddleWare);
 

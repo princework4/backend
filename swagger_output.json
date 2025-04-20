@@ -5,7 +5,7 @@
     "title": "REST API",
     "description": ""
   },
-  "host": "localhost:3000",
+  "host": "localhost:8000/api/v1",
   "basePath": "/",
   "schemes": [
     "http"
@@ -32,6 +32,40 @@
       }
     },
     "/get-orders-analytics": {
+      "get": {
+        "description": "",
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      }
+    },
+    "/create-category": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      }
+    },
+    "/get-category": {
       "get": {
         "description": "",
         "responses": {
@@ -474,6 +508,12 @@
               "type": "object",
               "properties": {
                 "courseId": {
+                  "example": "any"
+                },
+                "isCourse": {
+                  "example": "any"
+                },
+                "amount": {
                   "example": "any"
                 }
               }

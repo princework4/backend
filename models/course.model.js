@@ -40,6 +40,7 @@ const courseDataSchema = new mongoose.Schema({
 
 
 
+
 const courseSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -102,6 +103,10 @@ const courseSchema = new mongoose.Schema({
     isApproved : {
         type: Boolean,
         default: false
+    },
+    category : {
+        type : String,
+        required : true
     }
 }, { timestamps: true });
 

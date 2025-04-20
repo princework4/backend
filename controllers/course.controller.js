@@ -183,7 +183,7 @@ const getAllCoursesDetails = CatchAsyncError(async (req, res, next) => {
             await redis.set("allCourses", JSON.stringify(allCourse))
             res.status(201).json({
                 success: true,
-                allCourse
+                parsedCoursesData : allCourse
             });
         }
 

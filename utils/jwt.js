@@ -18,22 +18,22 @@ const sendToken = async (user, statusCode, res) => {
     const accessTokenExpire = parseInt(process.env.ACCESS_TOKEN_EXPIRE || '300', 10);
     const refreshTokenExpire = parseInt(process.env.REFRESH_TOKEN_EXPIRE || '1200', 10);
 
-    // Options for cookies
     const accessTokenOptions = {
         httpOnly: false,
+        secure: true, // Always true for cross-site over HTTPS
+        sameSite: 'None', // Required for cross-site
         maxAge: accessTokenExpire * 60 * 1000,
-        secure: process.env.NODE_ENV == "Production",
-        sameSite: 'Lax',
-        expires: moment().add(accessTokenExpire, 'minutes').format()
+        expires: moment().add(accessTokenExpire, 'minutes').toDate() // not .format()
     };
-
+    
     const refreshTokenOptions = {
         httpOnly: false,
+        secure: true,
+        sameSite: 'None',
         maxAge: refreshTokenExpire * 24 * 60 * 1000,
-        secure: process.env.NODE_ENV == "Production",
-        sameSite: 'Lax',
-        expires: moment().add(refreshTokenExpire, 'minutes').format()
+        expires: moment().add(refreshTokenExpire, 'minutes').toDate()
     };
+    
 
 
     res.cookie("access_token", accessToken, accessTokenOptions)

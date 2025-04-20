@@ -4,7 +4,7 @@ const PaymentInfoSchema = new mongoose.Schema({
     orderId: { type: String, required: true },
     transactionId: { type: String, required: true },
     paymentMethod: { type: String, required: true },
-    amount: { type: Number, required: true },
+    amount: { type: Number, required: false, default : 0 },
     currency: { type: String, required: true },
     signature: { type: String, required: true },
     status: { type: String, required: true },

@@ -6,22 +6,16 @@ const sendEmail = require('../utils/sendMail.js');
 const UserModel = require('../models/user.model');
 const NotificationModel = require('../models/notification.model');
 const OrderModel = require('../models/order.model');
-const {getAllCoursesService} = require("../services/course");
-const {getAllOrderService} = require("../services/order");
+const { getAllCoursesService } = require("../services/course");
+const { getAllOrderService } = require("../services/order");
 
 
 const razorpayInstance = require("../services/razorpay.js").default;
 
 const createOrderV1 = CatchAsyncError(async (req, res, next) => {
     try {
-        const { courseId } = req.body;
+        const { courseId, isCourse, amount } = req.body;
         const user = await UserModel.findById(req.user._id);
-
-        // console.log("user", user)
-        // console.log("courseId", courseId)
-        // console.log("razorpayInstance", razorpayInstance)
-        // console.log("razorpayInstance.orders", razorpayInstance.orders)
-        // Check if the user already purchased the course
         const courseExistInUser = user.courses.some(course => course?._id.toString() === courseId);
         const isSubscribedUser = user.subscription.isActive;
 
@@ -30,20 +24,19 @@ const createOrderV1 = CatchAsyncError(async (req, res, next) => {
         }
 
         // Fetch the course
-        const course = await CourseModel.findById(courseId);
-        if (!course) {
-            return next(new ErrorHandler('Course not found', 404));
+        if (isCourse) {
+            const course = await CourseModel.findById(courseId);
+            if (!course) {
+                return next(new ErrorHandler('Course not found', 404));
+            }
         }
-       console.log("course", course)
         // Create a Razorpay order
         const razorpayOrder = await razorpayInstance.orders.create({
-            amount: 1000 * 100, // Razorpay expects the amount in paisa (₹1 = 100 paisa)
+            amount: amount * 100, // Razorpay expects the amount in paisa (₹1 = 100 paisa)
             currency: "INR",
             receipt: `order_rcptid_${user._id}`,
             payment_capture: 1, // Auto-capture the payment
         });
-        // console.log("razorpayOrder", razorpayOrder)
-        // Send the Razorpay order details to frontend
         res.status(200).json({
             success: true,
             orderId: razorpayOrder?.id,
@@ -53,7 +46,7 @@ const createOrderV1 = CatchAsyncError(async (req, res, next) => {
         });
 
     } catch (e) {
-        console.log("e", e)
+        console.log("e", e);
         next(new ErrorHandler(e.message, 500));
     }
 });
@@ -69,7 +62,7 @@ const createOrder = CatchAsyncError(async (req, res, next) => {
 
         // Check if the user has already purchased this course
         const courseExistInUser = user.courses.some(course => course._id.toString() === courseId);
-        const isSubscribedUser = user.subscription.isActive
+        const isSubscribedUser = user.subscription.isActive;
 
 
         if (courseExistInUser || isSubscribedUser) {
@@ -102,7 +95,7 @@ const createOrder = CatchAsyncError(async (req, res, next) => {
         // Prepare mail data
         const mailData = {
             order: {
-                _id: order._id ,// Use the ID of the newly created order
+                _id: order._id,// Use the ID of the newly created order
                 name: course.name,
                 price: course.price,
                 date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
@@ -115,7 +108,7 @@ const createOrder = CatchAsyncError(async (req, res, next) => {
                 email: user.email,
                 subject: "Course Purchased Successfully",
                 template: "orderConfirmationMail.ejs",
-                data : mailData
+                data: mailData
             });
         } catch (e) {
             return next(new ErrorHandler(e.message, 500));
@@ -149,28 +142,24 @@ const createOrder = CatchAsyncError(async (req, res, next) => {
 
 // Get All Orders -- Admin Only
 const getAllOrders = CatchAsyncError(async (req, res, next) => {
-    try{
-        getAllOrderService(res,next)
-    }catch (e) {
-        next(new ErrorHandler((e.message, 500)))
+    try {
+        getAllOrderService(res, next);
+    } catch (e) {
+        next(new ErrorHandler((e.message, 500)));
     }
-})
+});
 
 
 const verifyPayment = CatchAsyncError(async (req, res, next) => {
-    console.log("inside", req.body)
     let parsedBody = req.body;
 
     // If req.body is a stringified JSON, parse it
     if (typeof req.body === "string") {
         parsedBody = JSON.parse(Object.keys(req.body)[0]);
-        console.log("inside 2", req.body)
 
     }
     try {
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature, courseId } = req.body;
-        console.log("","inside two", "razorpay_order_id:", razorpay_order_id, "razorpay_payment_id:", razorpay_payment_id, "razorpay_signature:",razorpay_signature, "courseId",courseId)
-        console.log("process.env.RAZORPAY_KEY_SECRET",process.env.RAZORPAY_API_SECRET)
 
         // Generate the expected signature
         const generatedSignature = crypto
@@ -194,21 +183,6 @@ const verifyPayment = CatchAsyncError(async (req, res, next) => {
             return next(new ErrorHandler("Course not found", 404));
         }
 
-        console.log("hereeeee ", {
-            courseId: course._id,
-            userId: user._id,
-            isSubscription: false,
-            payment_info: {
-                orderId: razorpay_order_id,
-                transactionId: razorpay_payment_id,
-                paymentMethod: razorpay_order_id,
-                amount: course.price,
-                currency: "INR",
-                signature: razorpay_signature,
-                status: "Paid",
-                paymentDate: new Date(),
-            },
-        })
         // Store payment details in the database
         const order = await OrderModel.create({
             courseId: course._id,
@@ -271,4 +245,4 @@ const verifyPayment = CatchAsyncError(async (req, res, next) => {
 
 
 
-module.exports = {createOrder, getAllOrders, createOrderV1, verifyPayment}
+module.exports = { createOrder, getAllOrders, createOrderV1, verifyPayment };

@@ -5,33 +5,14 @@
     "title": "REST API",
     "description": ""
   },
-  "host": "lms-backend-26qi.onrender.com",
-  "basePath": "/api/v1",
+  "host": "localhost:3000",
+  "basePath": "/",
   "schemes": [
-    "https"
-  ],
-   "tags": [
-    {
-      "name": "User",
-      "description": "User related endpoints"
-    },
-    {
-      "name": "Course",
-      "description": "Course related endpoints"
-    },
-    {
-      "name": "Order",
-      "description": "Order related endpoints"
-    },
-    {
-      "name": "Admin",
-      "description": "Admin related endpoints"
-    }
+    "http"
   ],
   "paths": {
     "/get-user-analytics": {
       "get": {
-        "tags": ["Admin"],
         "description": "",
         "responses": {
           "201": {
@@ -42,7 +23,6 @@
     },
     "/get-courses-analytics": {
       "get": {
-        "tags": ["Admin"],
         "description": "",
         "responses": {
           "201": {
@@ -53,7 +33,6 @@
     },
     "/get-orders-analytics": {
       "get": {
-        "tags": ["Admin"],
         "description": "",
         "responses": {
           "201": {
@@ -64,7 +43,6 @@
     },
     "/createCourse": {
       "post": {
-        "tags": ["Course"],
         "description": "",
         "parameters": [
           {
@@ -75,21 +53,23 @@
               "properties": {
                 "thumbnail": {
                   "example": "any"
+                },
+                "name": {
+                  "example": "any"
                 }
               }
             }
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "201": {
+            "description": "Created"
           }
         }
       }
     },
     "/editCourse": {
       "put": {
-        "tags": ["Course"],
         "description": "",
         "parameters": [
           {
@@ -117,9 +97,18 @@
         }
       }
     },
+    "/my-courses": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/getCourse": {
       "get": {
-        "tags": ["Course"],
         "description": "",
         "parameters": [
           {
@@ -129,9 +118,6 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "201": {
             "description": "Created"
           }
@@ -140,7 +126,6 @@
     },
     "/getAllCourses": {
       "get": {
-        "tags": ["Course"],
         "description": "",
         "responses": {
           "200": {
@@ -152,9 +137,18 @@
         }
       }
     },
+    "/get-trending-courses": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/getCourse-content": {
       "get": {
-        "tags": ["Course"],
         "description": "",
         "parameters": [
           {
@@ -175,7 +169,6 @@
     },
     "/addquestion": {
       "put": {
-        "tags": ["Course"],
         "description": "",
         "parameters": [
           {
@@ -188,9 +181,6 @@
                   "example": "any"
                 },
                 "courseId": {
-                  "example": "any"
-                },
-                "contentId": {
                   "example": "any"
                 }
               }
@@ -206,7 +196,6 @@
     },
     "/addquestion-replies": {
       "put": {
-        "tags": ["Course"],
         "description": "",
         "parameters": [
           {
@@ -219,9 +208,6 @@
                   "example": "any"
                 },
                 "courseId": {
-                  "example": "any"
-                },
-                "contentId": {
                   "example": "any"
                 },
                 "questionId": {
@@ -240,7 +226,6 @@
     },
     "/addReview": {
       "put": {
-        "tags": ["Course"],
         "description": "",
         "parameters": [
           {
@@ -271,7 +256,6 @@
     },
     "/get-all-courses": {
       "get": {
-        "tags": ["Course"],
         "description": "",
         "responses": {
           "default": {
@@ -282,7 +266,6 @@
     },
     "/delete-course": {
       "delete": {
-        "tags": ["Course"],
         "description": "",
         "parameters": [
           {
@@ -305,9 +288,48 @@
         }
       }
     },
+    "/courses-to-approve": {
+      "get": {
+        "description": "",
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      }
+    },
+    "/approve-course": {
+      "put": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "isApprove": {
+                  "example": "any"
+                },
+                "courseId": {
+                  "example": "any"
+                },
+                "reason": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/create-layout": {
       "post": {
-        "tags": ["Admin"],
         "description": "",
         "parameters": [
           {
@@ -347,7 +369,6 @@
     },
     "/edit-layout": {
       "put": {
-        "tags": ["Admin"],
         "description": "",
         "parameters": [
           {
@@ -387,7 +408,6 @@
     },
     "/get-layout": {
       "get": {
-        "tags": ["User"],
         "description": "",
         "responses": {
           "201": {
@@ -398,7 +418,6 @@
     },
     "/notifications": {
       "get": {
-        "tags": ["Admin"],
         "description": "",
         "responses": {
           "201": {
@@ -409,7 +428,6 @@
     },
     "/update-notifications": {
       "put": {
-        "tags": ["Admin"],
         "description": "",
         "responses": {
           "default": {
@@ -420,7 +438,6 @@
     },
     "/create-order": {
       "post": {
-        "tags": ["Order"],
         "description": "",
         "parameters": [
           {
@@ -446,9 +463,65 @@
         }
       }
     },
+    "/create-order-v1": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "courseId": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/verify-payment": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "razorpay_order_id": {
+                  "example": "any"
+                },
+                "razorpay_payment_id": {
+                  "example": "any"
+                },
+                "razorpay_signature": {
+                  "example": "any"
+                },
+                "courseId": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/get-all-orders": {
       "get": {
-        "tags": ["Course"],
         "description": "",
         "responses": {
           "default": {
@@ -459,7 +532,6 @@
     },
     "/registration": {
       "post": {
-        "tags": ["User"],
         "description": "",
         "parameters": [
           {
@@ -490,7 +562,6 @@
     },
     "/verifyuser": {
       "post": {
-        "tags": ["User"],
         "description": "",
         "parameters": [
           {
@@ -510,15 +581,14 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "Created"
+          "default": {
+            "description": ""
           }
         }
       }
     },
     "/login": {
       "post": {
-        "tags": ["User"],
         "description": "",
         "parameters": [
           {
@@ -546,7 +616,6 @@
     },
     "/logout": {
       "get": {
-        "tags": ["User"],
         "description": "",
         "responses": {
           "200": {
@@ -557,7 +626,6 @@
     },
     "/refresh-token": {
       "get": {
-        "tags": ["User"],
         "description": "",
         "responses": {
           "default": {
@@ -568,7 +636,6 @@
     },
     "/userinfo": {
       "get": {
-        "tags": ["User"],
         "description": "",
         "responses": {
           "default": {
@@ -579,7 +646,6 @@
     },
     "/socialAuth": {
       "post": {
-        "tags": ["User"],
         "description": "",
         "parameters": [
           {
@@ -607,7 +673,6 @@
     },
     "/updateuserinfo": {
       "put": {
-        "tags": ["User"],
         "description": "",
         "parameters": [
           {
@@ -619,7 +684,16 @@
                 "name": {
                   "example": "any"
                 },
-                "email": {
+                "phone": {
+                  "example": "any"
+                },
+                "address1": {
+                  "example": "any"
+                },
+                "address2": {
+                  "example": "any"
+                },
+                "dob": {
                   "example": "any"
                 }
               }
@@ -627,15 +701,14 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "Created"
+          "200": {
+            "description": "OK"
           }
         }
       }
     },
     "/updatepassword": {
       "post": {
-        "tags": ["User"],
         "description": "",
         "parameters": [
           {
@@ -663,7 +736,6 @@
     },
     "/updateuseravatar": {
       "put": {
-        "tags": ["User"],
         "description": "",
         "parameters": [
           {
@@ -688,7 +760,6 @@
     },
     "/purchase-subscription": {
       "post": {
-        "tags": ["Order"],
         "description": "",
         "parameters": [
           {
@@ -716,7 +787,6 @@
     },
     "/get-all-users": {
       "get": {
-        "tags": ["Admin"],
         "description": "",
         "responses": {
           "default": {
@@ -727,7 +797,6 @@
     },
     "/update-user-role": {
       "put": {
-        "tags": ["Admin"],
         "description": "",
         "parameters": [
           {
@@ -754,8 +823,7 @@
       }
     },
     "/delete-user": {
-      "delete": {
-        "tags": ["Admin"],
+      "put": {
         "description": "",
         "parameters": [
           {
@@ -765,6 +833,9 @@
               "type": "object",
               "properties": {
                 "userId": {
+                  "example": "any"
+                },
+                "password": {
                   "example": "any"
                 }
               }

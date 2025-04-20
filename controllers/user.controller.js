@@ -9,7 +9,7 @@ const redis = require('../utils/redis.js');
 const { getUserByID } = require('../services/getuser.js');
 const cloudinary = require('cloudinary');
 const cron = require('node-cron');
-const OrderModel = require('../models/order.model')
+const OrderModel = require('../models/order.model');
 const moment = require("moment");
 const { getAllUsersService, updateUserRoleService } = require("../services/getuser");
 
@@ -60,7 +60,7 @@ const createActivationToken = (user) => {
     });
 
     return { token, activationCode };
-}
+};
 
 
 
@@ -105,24 +105,24 @@ const loginUser = CatchAsyncError(async (req, res, next) => {
     try {
         const { email, password } = req.body;
         if (!email) {
-            return next(new ErrorHandler('Kindly enter email', 400))
+            return next(new ErrorHandler('Kindly enter email', 400));
         } else if (!password) {
-            return next(new ErrorHandler('Kindly enter password', 400))
+            return next(new ErrorHandler('Kindly enter password', 400));
         }
         const user = await userModel.findOne({ email }).select('+password');
         if (!user) {
-            return next(new ErrorHandler('Invalid email or password', 401))
+            return next(new ErrorHandler('Invalid email or password', 401));
         }
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
-            return next(new ErrorHandler('Incorrect Password', 401))
+            return next(new ErrorHandler('Incorrect Password', 401));
         }
 
         sendToken(user, 200, res);
     } catch (error) {
-        return next(new ErrorHandler(error?.message, 400))
+        return next(new ErrorHandler(error?.message, 400));
     }
-})
+});
 
 
 
@@ -148,9 +148,9 @@ const logoutUser = CatchAsyncError(async (req, res, next) => {
 const refreshToken = CatchAsyncError(async (req, res, next) => {
     try {
         const findUser = await userModel.findOne({ email: req.user.email }).select('-password');
-        sendToken(findUser, 200, res)
+        sendToken(findUser, 200, res);
     } catch (error) {
-        return next(new ErrorHandler('Error in refreshing token ' + error, 400))
+        return next(new ErrorHandler('Error in refreshing token ' + error, 400));
     }
 });
 
@@ -160,12 +160,12 @@ const refreshToken = CatchAsyncError(async (req, res, next) => {
 // Getting User Information
 const getUserInfo = CatchAsyncError(async (req, res, next) => {
     try {
-        const userId = req.user._id
-        getUserByID(userId, res)
+        const userId = req.user._id;
+        getUserByID(userId, res);
     } catch (error) {
-        next(new ErrorHandler(error?.message, 400))
+        next(new ErrorHandler(error?.message, 400));
     }
-})
+});
 
 
 
@@ -173,17 +173,17 @@ const getUserInfo = CatchAsyncError(async (req, res, next) => {
 // social auth 
 const socialAuth = CatchAsyncError(async (req, res, next) => {
     try {
-        const { email, name } = req.body
-        const user = await userModel.findOne({ email })
+        const { email, name } = req.body;
+        const user = await userModel.findOne({ email });
         if (!user) {
             const newUser = await userModel.create({ email, name, ...req.body }); //Will check later
-            sendToken(newUser, 200, res)
+            sendToken(newUser, 200, res);
         }
         else {
-            sendToken(user, 200, res)
+            sendToken(user, 200, res);
         }
     } catch (error) {
-        next(new ErrorHandler(error?.message, 400))
+        next(new ErrorHandler(error?.message, 400));
     }
 });
 
@@ -231,41 +231,41 @@ const updateUserInfo = CatchAsyncError(async (req, res, next) => {
 // updateUserPassword
 const updatePassword = CatchAsyncError(async (req, res, next) => {
     try {
-        const { oldPassword, newPassword } = req.body
-        const userId = req.user._id
+        const { oldPassword, newPassword } = req.body;
+        const userId = req.user._id;
 
 
         if (!oldPassword || !newPassword) {
-            return next(new ErrorHandler('Please enter both old and new password', 400))
+            return next(new ErrorHandler('Please enter both old and new password', 400));
         }
 
         // check if both are same
         if (oldPassword === newPassword) {
-            return next(new ErrorHandler('Old and new password cannot be same', 400))
+            return next(new ErrorHandler('Old and new password cannot be same', 400));
         }
 
         if (!userId) {
-            return next(new ErrorHandler('User not found', 400))
+            return next(new ErrorHandler('User not found', 400));
         } else {
             const user = await userModel.findById(userId).select('+password');
 
-            const isValidPassword = await user.comparePassword(oldPassword)
+            const isValidPassword = await user.comparePassword(oldPassword);
             if (!isValidPassword) {
-                return next(new ErrorHandler('Old password is incorrect', 400))
+                return next(new ErrorHandler('Old password is incorrect', 400));
             }
 
             // Updating the password here, not doing hash bcz in model there is predefined hash function it runs everytime when save happen
-            user.password = newPassword
-            await user?.save()
-            await redis.set(userId, JSON.stringify(user))
+            user.password = newPassword;
+            await user?.save();
+            await redis.set(userId, JSON.stringify(user));
 
             res.status(201).json({
                 success: true,
                 message: 'Password updated successfully'
-            })
+            });
         }
     } catch (error) {
-        next(new ErrorHandler(error?.message, 400))
+        next(new ErrorHandler(error?.message, 400));
     }
 });
 
@@ -302,7 +302,7 @@ const updateProfilePicture = CatchAsyncError(async (req, res, next) => {
                 width: 150,
                 crop: 'scale'
             });
-            console.log(myCloud)
+            console.log(myCloud);
 
             // Update user avatar details
             user.avatar = {
@@ -341,24 +341,23 @@ const purchaseSubscription = CatchAsyncError(async (req, res, next) => {
         } else {
             const planStartDate = moment().toDate();
             let planEndDate = planStartDate;
-            console.log(planEndDate);
             switch (plan) {
-                case "monthly":
+                case "Monthly":
                     planEndDate = moment().add(30, 'days').toDate();
                     break;
                 case "quarterly":
                     planEndDate = moment().add(90, 'days').toDate();
                     break;
-                case "half-yearly":
+                case "Half-Yearly":
                     planEndDate = moment().add(180, 'days').toDate();
                     break;
-                case "yearly":
+                case "Yearly":
                     planEndDate = moment().add(365, 'days').toDate();
                     break;
                 default:
                     return next(new ErrorHandler('Invalid plan type', 400));
             }
-            console.log(planEndDate)
+            console.log(planEndDate);
             await userModel.updateOne(
                 { _id: user._id },
                 { $set: { "subscription.isActive": true, "subscription.startDate": planStartDate, "subscription.endDate": planEndDate, "subscription.plan": plan } }
@@ -366,28 +365,36 @@ const purchaseSubscription = CatchAsyncError(async (req, res, next) => {
             await OrderModel.create({
                 isSubscription: true,
                 userId: user._id,
-                payment_info: payment_info
-            })
+                payment_info: {
+                    orderId: payment_info.razorpay_order_id,
+                    transactionId: payment_info.razorpay_payment_id,
+                    paymentMethod: payment_info.razorpay_order_id,
+                    currency: "INR",
+                    signature: payment_info.razorpay_signature,
+                    status: "Paid",
+                    paymentDate: new Date(),
+                }
+            });
             res.status(201).json({
                 success: true,
                 message: "Subscription purchased successfully"
-            })
+            });
         }
     } catch (error) {
         next(new ErrorHandler(error.message, 500));
     }
-})
+});
 
 
 
 // Get All users -- For Admin Only
 const getAllUsers = CatchAsyncError(async (req, res, next) => {
     try {
-        getAllUsersService(res, next)
+        getAllUsersService(res, next);
     } catch (e) {
-        next(new ErrorHandler(e.message, 500))
+        next(new ErrorHandler(e.message, 500));
     }
-})
+});
 
 
 
@@ -396,11 +403,11 @@ const updateUserRole = CatchAsyncError(async (req, res, next) => {
     try {
         const { role, userId } = req.body;
         if (role.length == 0 || !userId) {
-            return next(new ErrorHandler('Please provide role and user id', 400))
+            return next(new ErrorHandler('Please provide role and user id', 400));
         }
-        await updateUserRoleService(userId, role, res, next)
+        await updateUserRoleService(userId, role, res, next);
     } catch (e) {
-        next(new ErrorHandler(e.message, 500))
+        next(new ErrorHandler(e.message, 500));
     }
 });
 
@@ -411,39 +418,39 @@ const updateUserRole = CatchAsyncError(async (req, res, next) => {
 // Delete User 
 const deleteUser = CatchAsyncError(async (req, res, next) => {
     try {
-        const { userId, password } = req.body
-        const isAdmin = req?.user?.role?.includes('admin')
+        const { userId, password } = req.body;
+        const isAdmin = req?.user?.role?.includes('admin');
 
         if (isAdmin) {
             if (!userId) {
                 next(new ErrorHandler('User not found', 401));
             }
-            await userModel.deleteOne({ _id: userId })
-            await redis.del(userId)
+            await userModel.deleteOne({ _id: userId });
+            await redis.del(userId);
         } else {
             if (!userId) {
                 next(new ErrorHandler('User not found', 401));
             }
             const user = await userModel.findById(userId).select('+password');
 
-            const isValidPassword = await user.comparePassword(password)
+            const isValidPassword = await user.comparePassword(password);
 
             if (!isValidPassword) {
-                return next(new ErrorHandler('Incorrect Password', 400))
+                return next(new ErrorHandler('Incorrect Password', 400));
             }
 
-            await userModel.deleteOne({ _id: userId })
-            await redis.del(userId)
+            await userModel.deleteOne({ _id: userId });
+            await redis.del(userId);
         }
 
         res.status(201).json({
             success: true,
             message: "User Deleted"
-        })
+        });
     } catch (err) {
-        next(new ErrorHandler(err.message, 500))
+        next(new ErrorHandler(err.message, 500));
     }
-})
+});
 
 
 
@@ -457,7 +464,7 @@ cron.schedule("0 0 0 * * *", async () => {
         { "subscription.isActive": true, "subscription.endDate": { $lt: today } },
         { $set: { "subscription.isActive": false } }
     );
-    console.log("Subscription job run success")
+    console.log("Subscription job run success");
 });
 
 

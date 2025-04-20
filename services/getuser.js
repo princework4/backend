@@ -6,13 +6,12 @@ const CourseModel = require("../models/course.model");
 const OrderModel = require("../models/order.model");
 
 const getUserByID = CatchAsyncError(async (id, res) => {
-    const userJSON = await redis.get(id)
+    const userJSON = await UserModel.findById(id)
 
     if(userJSON){
-        const user = JSON.parse(userJSON)
         res.status(201).json({
             success: true,
-            user
+            user : userJSON
         })
     }
 });

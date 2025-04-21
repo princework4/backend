@@ -12,7 +12,7 @@ const redisClient = new Redis(process.env.REDIS_URL);
 const authenticateUser = CatchAsyncError(async (req, res, next) => {
     const token = req.cookies['access_token'];
     if (!token) {
-        return next(new ErrorHandler('Authentication failed', 401));
+        return next(new ErrorHandler('Please signup or login', 401));
     }
     try {
         const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
@@ -23,7 +23,7 @@ const authenticateUser = CatchAsyncError(async (req, res, next) => {
         req.user = JSON.parse(user);
         next();
     } catch (error) {
-        return next(new ErrorHandler('Authentication failed ' + error, 401));
+        return next(new ErrorHandler('Please signup or login ' + error, 401));
     }
 });
 
@@ -65,7 +65,7 @@ const validateRefreshToken = CatchAsyncError(async(req, res, next) => {
         req.user = JSON.parse(user);
         next()
     } catch (error) {
-        next(new ErrorHandler('Authentication failed ' + error, 401))
+        next(new ErrorHandler('Please signup or login ' + error, 401))
     }
 })
 

@@ -550,7 +550,7 @@ const getMyCourses = CatchAsyncError(async (req, res, next) => {
     try {
         const user = req.user;
         if (!user) {
-            return next(new ErrorHandler('Authentication Failed', 401));
+            return next(new ErrorHandler('Please login or signup', 401));
         }
 
         // Ensure user.courses is an array

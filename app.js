@@ -14,6 +14,7 @@ const rateLimit = require('express-rate-limit');
 const swaggerUi = require('swagger-ui-express')
 const swaggerFile = require('./swagger_output.json');
 const CategoryRouter = require('./routes/category.route.js');
+const VideoProgress = require('./routes/videoProgress.route.js');
 
 
 
@@ -54,7 +55,7 @@ app.use(express.urlencoded({ extended: true, limit : '10mb' }));
 
 app.use(cookieParser());
 
-app.use('/api/v1', userRouter, courseRouter, orderRouter, NotificationRouter, AnalyticsRouter, layoutRouter, CategoryRouter );
+app.use('/api/v1', userRouter, courseRouter, orderRouter, NotificationRouter, AnalyticsRouter, layoutRouter, CategoryRouter , VideoProgress);
 app.use('/doc', swaggerUi.serve, swaggerUi.setup(swaggerFile))
 app.use(ErrorMiddleWare);
 

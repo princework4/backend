@@ -19,20 +19,21 @@ const sendToken = async (user, statusCode, res) => {
     const refreshTokenExpire = parseInt(process.env.REFRESH_TOKEN_EXPIRE || '1200', 10);
 
     const accessTokenOptions = {
-        httpOnly: false,
-        secure: true, // Always true for cross-site over HTTPS
-        sameSite: 'None', // Required for cross-site
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None',
         maxAge: accessTokenExpire * 60 * 1000,
-        expires: moment().add(accessTokenExpire, 'minutes').toDate() // not .format()
+        expires: moment().add(accessTokenExpire, 'minutes').toDate()
     };
     
     const refreshTokenOptions = {
-        httpOnly: false,
+        httpOnly: true,
         secure: true,
         sameSite: 'None',
-        maxAge: refreshTokenExpire * 24 * 60 * 1000,
+        maxAge: refreshTokenExpire * 60 * 1000,
         expires: moment().add(refreshTokenExpire, 'minutes').toDate()
     };
+    
     
 
 
